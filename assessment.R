@@ -12,10 +12,10 @@ library(sp)
 library(spdep)
 library(car)
 
-#Set up some spatial data
+
 getwd()
 
-#read some ward data in
+#download the shapefile
 
 #download a zip file containing some boundaries we want to use
 download.file("https://data.london.gov.uk/download/statistical-gis-boundary-files-london/9ba8c833-6370-4b11-abdc-314aa020d5e0/statistical-gis-boundaries-london.zip", destfile="report_data/statistical-gis-boundaries-london.zip")
@@ -42,6 +42,7 @@ LondonBoroughsssSFBNG <- st_transform(LondonBoroughsssSF, BNG)
 #check the data
 qtm(LondonBoroughsssSFBNG)
 
+#read the csv file for our data
 LondonBoroughProfiles<- read.csv("report_data/LondonBoroughProfiles1.csv")
 
 str(LondonBoroughProfiles)
@@ -59,8 +60,8 @@ qtm(LonBorouProfiles, fill = "Percentage.who.were.bullied.in.the.past.couple.of.
 
 q <- qplot(x = `Percentage.who.have.been.drunk.in.the.last.4.weeks`, y = `Percentage.who.were.bullied.in.the.past.couple.of.months`, data=LonBorouProfiles)
 
-#plot with a regression line - note, I've added some jitter here as the x-scale is rounded
 q + stat_smooth(method="lm", se=FALSE, size=1) + geom_jitter()
+
 
 #multiple regression model
 
@@ -84,9 +85,9 @@ ggplot(LonBorouProfiles, aes(x=`Non.British`)) + geom_histogram(aes(y = ..densit
 
 ggplot(LonBorouProfiles, aes(x=`Percentage.of.those.with.3.or.more.risky.behaviours`)) + geom_histogram(aes(y = ..density..),binwidth = 3) + geom_density(colour="red", size=1, adjust=1)
 
-#Assumption 2 - The residuals in your model should be normally distributed
+#Assumption 2 - The residuals in our model should be normally distributed
 
-#save the residuals into your dataframe
+#save the residuals into our dataframe
 LonBorouProfiles$model_resids <- model$residuals
 
 qplot(model$residuals) + geom_histogram() 
@@ -106,13 +107,13 @@ tempdf <- tempdf[,c("Percentage.who.have.ever.had.an.alcoholic.drink" , "Non.Bri
 #rename the columns to something shorter
 names(tempdf) <- c("alcoholic.drink", "Non.British","risky.behaviours")
 
-#compute the correlation matrix for the two variables of interest
+#compute the correlation matrix
 cormat <- cor(tempdf[,1:3], use="complete.obs", method="pearson")
 
 #visualise the correlation matrix
 corrplot(cormat)
 
-#If we have VIF values for any variable exceeding 10, then we may need to worry and perhaps remove that variable from the analysis.
+#Examine the VIF values
 vif(model)
 
 #Assumption 4 - Homoscedasticity
@@ -125,7 +126,7 @@ plot(model)
 LonBorouProfilesSP <- as(LonBorouProfiles,"Spatial")
 names(LonBorouProfilesSP)
 
-#and calculate the centroids of all boroughs in London
+#calculate the centroids of all boroughs in London
 coordsB <- coordinates(LonBorouProfilesSP)
 plot(coordsB)
 
@@ -210,7 +211,7 @@ LonBorouProfilesSP@data$coefAlcoholicDrink<-results$Percentage.who.have.ever.had
 LonBorouProfilesSP@data$coefNonBritish<-results$Non.British
 LonBorouProfilesSP@data$coef3RiskyBehaviours<-results$Percentage.of.those.with.3.or.more.risky.behaviours
 
-
+#plot the GER coefficients
 tm_shape(LonBorouProfilesSP) +
   tm_polygons(col = "coefAlcoholicDrink", palette = "RdBu", alpha = 0.5)
 
@@ -219,13 +220,4 @@ tm_shape(LonBorouProfilesSP) +
 
 tm_shape(LonBorouProfilesSP) +
   tm_polygons(col = "coef3RiskyBehaviours", palette = "PuOr")
-
-
-
-
-
-
-
-
-
 
