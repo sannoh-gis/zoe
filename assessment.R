@@ -220,7 +220,7 @@ tm_shape(LonBorouProfilesSP) +
 tm_shape(LonBorouProfilesSP) +
   tm_polygons(col = "coef3RiskyBehaviours", palette = "PuOr")
 
-#they are all positive or negative
+
 
 
 
