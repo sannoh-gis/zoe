@@ -168,13 +168,13 @@ library(spatialreg)
 #run a spatially-lagged regression model with a queen's case weights matrix
 slag_dv_model_queen <- lagsarlm(`Percentage.who.were.bullied.in.the.past.couple.of.months` ~ `Percentage.who.have.ever.had.an.alcoholic.drink` + `Non.British` + `Percentage.of.those.with.3.or.more.risky.behaviours`, data = LonBorouProfiles, nb2listw(LBorough_nb, style="C"), method = "eigen")
 
-#what do the outputs show?
+#show the summary
 summary(slag_dv_model_queen)
 
 #run a spatially-lagged regression model
 slag_dv_model_knn4 <- lagsarlm(`Percentage.who.were.bullied.in.the.past.couple.of.months` ~ `Percentage.who.have.ever.had.an.alcoholic.drink` + `Non.British` + `Percentage.of.those.with.3.or.more.risky.behaviours`, data = LonBorouProfiles, nb2listw(LBorough_knn, style="C"), method = "eigen")
 
-#what do the outputs show?
+#show the summary
 summary(slag_dv_model_knn4)
 
 #write out the residuals
@@ -184,11 +184,10 @@ LonBorouProfilesSP@data$slag_dv_model_knn_resids <- slag_dv_model_knn4$residuals
 moran.test(LonBorouProfilesSP@data$slag_dv_model_knn_resids, LBorough.knn_4_weight)
 
 
-
+#plot the resids
 qtm(LonBorouProfiles, fill = "model_resids")
 
-LonWardProfilesSP <- as(LonWardProfiles,"Spatial")
-moran.test(LonWardProfilesSP@data$model_final_res, Lward.knn_4_weight)
+LonBorouProfilesSP <- as(LonBorouProfiles,"Spatial")
 
 
 
